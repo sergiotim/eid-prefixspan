@@ -1,34 +1,23 @@
 import streamlit as st
 import pandas as pd
-import sqlite3
-import os
-import urllib.request
+from sqlalchemy import create_engine
 import matplotlib.pyplot as plt
 import networkx as nx
 
 # ==========================================
-# 1. CONFIGURAÇÃO DA PÁGINA E DOWNLOAD DO BANCO
+# 1 e 2. CONFIGURAÇÃO E CONEXÃO EM NUVEM (NEON)
 # ==========================================
 st.set_page_config(page_title="StreamTudo - OLAP & Pattern Discovery", layout="wide")
 
-# Baixa o banco do Dropbox apenas uma vez quando o app inicia
-@st.cache_resource
-def baixar_banco():
-    if not os.path.exists('streamtudo-v2.db'):
-        # Substitua este link pelo seu link do Dropbox (com dl.dropboxusercontent.com)
-        url_dropbox = 'https://dl.dropboxusercontent.com/scl/fi/vjtbdoug3uyqhuhd96cs6/streamtudo-v2.db?rlkey=2bnx9ihhrkmrjyro1fu1grjso&st=r1cesafb&dl=1'
-        urllib.request.urlretrieve(url_dropbox, 'streamtudo-v2.db')
-
-baixar_banco()
-
-# ==========================================
-# 2. CARREGAMENTO DOS DADOS OLAP (OTIMIZADO)
-# ==========================================
 @st.cache_data
 def carregar_dados_olap():
-    conn = sqlite3.connect('streamtudo-v2.db')
+    # 1. Puxando a URL do banco de forma segura através dos Secrets do Streamlit
+    url_neon = st.secrets["DATABASE_URL"]
     
-    # Extração otimizada com JOIN de Itens e LIMIT para não estourar a memória da nuvem
+    # 2. Conectando usando SQLAlchemy
+    engine = create_engine(url_neon)
+    
+    # 3. Extração otimizada com JOIN e aspas duplas nas tabelas (Regra do Postgres)
     query_eventos = """
         SELECT 
             u.userid, 
@@ -36,18 +25,21 @@ def carregar_dados_olap():
             e.timestamp, 
             e.event,
             i.categoryid
-        FROM EVENTOS e
-        JOIN SESSOES s ON e.sessaoid = s.sessaoid
-        JOIN USUARIOS u ON s.userid = u.userid
-        LEFT JOIN ITEM i ON e.itemid = i.itemid
+        FROM "EVENTOS" e
+        JOIN "SESSOES" s ON e.sessaoid = s.sessaoid
+        JOIN "USUARIOS" u ON s.userid = u.userid
+        LEFT JOIN "ITEM" i ON e.itemid = i.itemid
         LIMIT 50000
     """
-    df = pd.read_sql_query(query_eventos, conn)
+    
+    # Executa a leitura da tabela de eventos
+    df = pd.read_sql_query(query_eventos, engine)
     df['timestamp'] = pd.to_datetime(df['timestamp'], format='mixed', errors='coerce')
     df['data'] = df['timestamp'].dt.date
     
-    df_padroes = pd.read_sql_query("SELECT * FROM PADROES_CHURN", conn)
-    conn.close()
+    # Executa a leitura dos padrões minerados pela IA (também com aspas duplas)
+    df_padroes = pd.read_sql_query('SELECT * FROM "PADROES_CHURN"', engine)
+    
     return df, df_padroes
 
 df_olap, df_padroes_completo = carregar_dados_olap()
