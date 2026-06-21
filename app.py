@@ -23,7 +23,7 @@ def carregar_dados_olap():
             u.userid, 
             s.sessaoid, 
             e.timestamp, 
-            e.event,
+            e.event
         FROM "EVENTOS" e
         JOIN "SESSOES" s ON e.sessaoid = s.sessaoid
         JOIN "USUARIOS" u ON s.userid = u.userid
