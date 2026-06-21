@@ -134,7 +134,7 @@ with col_graf2:
     elif agrupamento == "Semanal":
         graf_linha = df_tempo.resample('W').size()
     else:
-        graf_linha = df_tempo.resample('M').size()
+        graf_linha = df_tempo.resample('ME').size()
         
     st.line_chart(graf_linha, x_label=f"Linha do Tempo ({agrupamento})", y_label="Volume")
 
