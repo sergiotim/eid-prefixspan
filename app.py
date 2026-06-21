@@ -24,12 +24,9 @@ def carregar_dados_olap():
             s.sessaoid, 
             e.timestamp, 
             e.event,
-            i.categoryid
         FROM "EVENTOS" e
         JOIN "SESSOES" s ON e.sessaoid = s.sessaoid
         JOIN "USUARIOS" u ON s.userid = u.userid
-        LEFT JOIN "ITEM" i ON e.itemid = i.itemid
-        LIMIT 50000
     """
     
     # Executa a leitura da tabela de eventos
