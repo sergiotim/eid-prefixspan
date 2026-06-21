@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
-import matplotlib.pyplot as plt
-import networkx as nx
 
 # ==========================================
 # 1 e 2. CONFIGURAÇÃO E CONEXÃO EM NUVEM (NEON)
@@ -166,13 +164,19 @@ else:
     st.success("✅ **Insight Completo:** Identificamos exatamente o caminho de ponta a ponta desde a home até o cancelamento.")
 
 if not dados_ps.empty:
-    col_tab, col_net = st.columns([1, 2])
-    with col_tab:
-        st.write("**Tabela de Ocorrências Absolutas**")
-        st.table(dados_ps.assign(Index=range(1, len(dados_ps)+1)).set_index('Index'))
-    with col_net:
-        # Chama a nossa função robusta do Matplotlib/NetworkX e a renderiza
-        figura_grafo = plotar_grafo_rede_matplotlib(dados_ps)
-        st.pyplot(figura_grafo)
+    st.write("**Tabela de Ocorrências Absolutas**")
+    st.table(dados_ps.assign(Index=range(1, len(dados_ps)+1)).set_index('Index'))
+    
+    st.markdown("---")
+    st.write("**Visualização do Volume de Churn por Jornada**")
+    
+    # Voltando ao gráfico de barras nativo do Streamlit, com a cor da marca (Vermelho)
+    st.bar_chart(
+        data=dados_ps, 
+        x="Jornada Descoberta", 
+        y="Ocorrencias", 
+        color="#E50914"
+    )
+    
 else:
-    st.write("Nenhum padrão encontrado.")
+    st.write("Nenhum padrão encontrado para esta configuração no banco de dados.")
