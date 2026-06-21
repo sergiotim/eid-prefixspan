@@ -16,7 +16,7 @@ st.set_page_config(page_title="StreamTudo - OLAP & Pattern Discovery", layout="w
 def baixar_banco():
     if not os.path.exists('streamtudo-v2.db'):
         # Substitua este link pelo seu link do Dropbox (com dl.dropboxusercontent.com)
-        url_dropbox = 'https://dl.dropboxusercontent.com/s/SEU_LINK_AQUI/streamtudo-v2.db'
+        url_dropbox = 'https://dl.dropboxusercontent.com/scl/fi/vjtbdoug3uyqhuhd96cs6/streamtudo-v2.db?rlkey=2bnx9ihhrkmrjyro1fu1grjso&st=r1cesafb&dl=1'
         urllib.request.urlretrieve(url_dropbox, 'streamtudo-v2.db')
 
 baixar_banco()
