@@ -138,7 +138,7 @@ with col_graf2:
         
     st.line_chart(graf_linha, x_label=f"Linha do Tempo ({agrupamento})", y_label="Volume")
 
-st.markdown("---")
+st.markdown("---") 
 
 # ==========================================
 # 6. PREFIXSPAN DINÂMICO E GRAFO DE REDE
